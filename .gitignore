@@ -1,3 +1,6 @@
+Gemfile.lock
+
+
 # rcov generated
 coverage
 coverage.data
@@ -47,3 +50,5 @@ pkg
 
 # For rubinius:
 #*.rbc
+
+
