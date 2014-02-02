@@ -1,6 +1,8 @@
 = fun_with_templates
 
-Description goes here.
+Evaluates a directory of templates, given a hash of fill-in values?
+
+
 
 == Contributing to fun_with_templates
  

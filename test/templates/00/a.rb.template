@@ -1,0 +1,7 @@
+module <%= @module %>
+  class <%= @class %>
+    def <%= @method %>( <%= @args.join(", ") %> )
+      <%= @args.join( " * " ) %>
+    end
+  end
+end

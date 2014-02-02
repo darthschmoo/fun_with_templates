@@ -16,3 +16,7 @@ require 'fun_with_templates'
 
 class Test::Unit::TestCase
 end
+
+class FunWith::Templates::TestCase < Test::Unit::TestCase
+  include FunWith::Templates
+end
