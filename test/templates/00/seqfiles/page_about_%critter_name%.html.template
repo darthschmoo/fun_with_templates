@@ -8,5 +8,8 @@
 
 <body>
   <h1>This page is about the <%= @critter_name %></h1>
+  
+  <% critter = @critters[@critter_name] %>
+  <p>The <%= @critter_name %> is <%= critter[:attributes][0] %> and <%= critter[:attributes][1] %></p>
 </body>
 </html>

@@ -29,7 +29,7 @@ module FunWith
       #
       #            In this case, :chap_count would be the key in vars.
       
-      #      Example (no leading 0s):  chapter%i%.html
+      #      Example (no leading 0s):  chapter%i%.html.template
       #                                ==> chapter1.html
       #                                ==> chapter2.html
       #                                ==> chapter3.html
@@ -46,7 +46,7 @@ module FunWith
       # The directory structure is cloned.
       # 
       # Files named with any other extension will simply be copied as-is.
-      def self.eval_dir( src, dest, vars = {} )
+      def self.evaluate_dir( src, dest, vars = {} )
         dest = FunWith::Files::FilePath.tmpdir if dest == :temp
         dest.touch_dir   # create the dir if it doesn't exist
         
@@ -61,10 +61,10 @@ module FunWith
             entry_dest.touch_dir
             puts "Created directory #{entry_dest}/" if VERBOSE
           elsif is_template?( entry )
-            TemplateEvaluator.result_to_file( entry, entry_dest, vars )
+            self.result_to_file( entry, entry_dest, vars )
             puts "Created file #{entry_dest} from template #{relative_path}" if VERBOSE
           elsif is_template_sequence?( entry )
-            eval_sequence( entry, entry_dest, vars )
+            self.evaluate_sequence( entry, entry_dest, vars )
           elsif entry.file?
             FileUtils.cp( entry, entry_dest )
             puts "Copied file #{relative_path} to #{entry_dest}" if VERBOSE
@@ -78,7 +78,7 @@ module FunWith
       # dest: absolute filepath of the destination.  The %sequence_variable% must be intact, and the same as the source,
       #       but the overall filename can be different.
       # vars: the variables to use on this template.  This must include the :sequence_variable key if it's going to work.
-      def self.eval_sequence( source, dest, vars = {} )
+      def self.evaluate_sequence( source, dest, vars = {} )
         # figure out the sequencing variable by analyzing the filename.
         seq_varname = dest.basename.match( SEQUENCE_VAR_REGEX )[1]
         dest = dest.gsub( /\.template(_seq)?$/, '' )
@@ -112,11 +112,13 @@ module FunWith
           val_as_string = (width && val.is_a?(Integer)) ? sprintf("%0#{width}i", val) : val.to_s
           dest_for_sequence_item = dest.gsub( "%#{seq_varname}%", val_as_string )
           
-          TemplateEvaluator.result_to_file( source, dest_for_sequence_item, vars.merge( {seq_varname.to_sym => val} ) )
+          self.result_to_file( source, dest_for_sequence_item, vars.merge( {seq_varname.to_sym => val} ) )
           puts "Sequence: #{dest_for_sequence_item}" if VERBOSE
         end
       end
       
+      # content : either a string to be ERB evaluated or a filepath
+      # vars    : the variables required by the template you're filling in.
       def initialize( content, vars = {} )
         if content.is_a?( FunWith::Files::FilePath ) && content.file?
           @path    = content
@@ -135,7 +137,7 @@ module FunWith
           end
         rescue Exception => e
           puts "TemplateEvaluator: Exception while evaluating template #{@path}.  Rethrowing."
-          raise 
+          raise e
         end
         
         self
@@ -153,6 +155,8 @@ module FunWith
       # In the template, these can be accessed in the ERB way:
       # <%= @var1 %>, <%= @var2 %>
       def self.result_to_file( src, dst, vars = {} )
+        dst = dst.join( src.basename ) if dst.directory?
+        
         self.new( src, vars ).result_to_file( dst )
       end
     

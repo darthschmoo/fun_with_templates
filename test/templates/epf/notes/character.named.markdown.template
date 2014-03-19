@@ -1,0 +1,15 @@
+<%= @name %>
+<%= "=" * (@name || "").length %>
+
+Summary
+-------
+
+<%= @summary %>
+
+Description
+-----------
+
+Age: <%= @age %>
+
+<%= @description %>
+

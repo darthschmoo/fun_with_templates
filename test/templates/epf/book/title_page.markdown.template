@@ -1,0 +1,5 @@
+<%= @book[:title] %>
+<%= "=" * (@book[:title] || "===").length %>
+
+by <%= @book[:author] %>
+

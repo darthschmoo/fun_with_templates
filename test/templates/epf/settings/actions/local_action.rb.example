@@ -1,0 +1,14 @@
+module EpubForge
+  module Action
+    class <%= @class_name %> < ThorAction
+      
+      <% for action in @actions %>
+      desc( "<%= @slug %>:<%= action %>", "do action <%= action %>" )
+      def <%= action %>( project, *args )
+        puts "Do action <%= action %> to your project."
+      end
+      
+      <% end %>
+    end
+  end
+end
