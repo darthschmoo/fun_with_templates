@@ -26,7 +26,7 @@
 #         FunWith::Templates::TemplateEvaluator.result_to_file( src, dst, vars )
 #         
 #         # if src.directory?
-#         #   FunWith::Templates::TemplateEvaluator.evaluate_dir( src, dest, vars )
+#         #   FunWith::Templates::TemplateEvaluator.evaluate( src, dest, vars )
 #         # elsif src.file?
 #         #   FunWith::Templates::TemplateEvaluator.result_to_file( src, dest, vars )
 #         # end

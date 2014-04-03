@@ -1,17 +1,22 @@
-require 'fun_with_files'
-require 'fun_with_version_strings'
+require 'fun_with_gems'
+require 'fun_with_string_colors'
 require 'erb'
 require 'debugger'
 
-module FunWith
-  module Templates
-  end
-end
 
+FunWith::Gems.make_gem_fun( "FunWith::Templates" )
+FunWith::StringColors.activate
+String.colorize( true )
 
-FunWith::Files::RootPath.rootify( FunWith::Templates, __FILE__.fwf_filepath.dirname.up )
-FunWith::VersionStrings.versionize( FunWith::Templates )
-
-# FunWith::Templates.root( "lib", "core_extensions" ).requir
-# FunWith::Templates.root( "lib", "templates" ).requir
-FunWith::Templates.root( "lib" ).requir
+# module FunWith
+#   module Templates
+#   end
+# end
+# 
+# 
+# FunWith::Files::RootPath.rootify( FunWith::Templates, __FILE__.fwf_filepath.dirname.up )
+# FunWith::VersionStrings.versionize( FunWith::Templates )
+# 
+# # FunWith::Templates.root( "lib", "core_extensions" ).requir
+# # FunWith::Templates.root( "lib", "templates" ).requir
+# FunWith::Templates.root( "lib" ).requir
