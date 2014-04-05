@@ -1,6 +1,56 @@
 = fun_with_templates
 
-Evaluates a directory of templates, given a hash of fill-in values?
+A simple interface for filling in and cloning an entire directory.
+The entire directory shares a single set of variables... may be made
+more flexible later, with an ability to specify special behaviors
+based on file matching regexes?
+
+For now you feed the function the template directory, the destination you want it cloned into.
+The vars is a hash, with symbols as the variable names.  If you declare { :monkey_name => "Bongo" },
+you can use <%= @monkey_name %> in any of the templates, and '%monkey_name%' in the filename.
+
+If a file is named with the '.template' or '.fwtemplate' file extension, it will undergo variable substitution.
+
+If the variable is an Array or Range or other enumeratableable object, and the filename has a variable embedded
+in it, the template will be evaluated once for each item enumerated, leading to multiple destination files.
+If the variable name isn't in the filename, the whole enumerable object gets passed in.  This is weird, but
+advantageous, as it means that in the templates where you don't mention the variable, you can access the whole
+range
+
+Filename variables:
+
+A few examples:  
+   - %i%  :  filled in.  If the variable :i is enumerable, then the template gets evaluated multiple times
+   - %character.name%  :  The object { :character => Character.new("barry") } gets .name() called on it.
+                          You can also make :character a hash with the :name key.
+   - %000k%  :  The number gets leading zeros.
+   - %hello_world%  : You can use underscores.
+
+Example:  chapter-%0000chap_count%.markdown.template_seq
+           ==> chapter-0001.markdown
+           ==> chapter-0002.markdown
+           ==> chapter-0003.markdown
+           ...
+           ==> chapter-0099.markdown
+
+           In this case, :chap_count would be the key in vars.
+
+     Example (no leading 0s):  chapter%i%.html.template
+                               ==> chapter1.html
+                               ==> chapter2.html
+                               ==> chapter3.html
+                               ...
+                               ==> chapter99.html
+    
+The point of the leading zeros is to specify that the file's number will be padded with zeros.
+
+When declaring this in vars, you can use any of the following:
+   vars = {:i => 0..19} (will generate 0 - 19)
+   vars = {:i => %w(ocelot mouse kitten puppy velociraptor)}  # @i will be filled in with the given strings.  leading 0s will be ignored.
+   
+The directory structure is cloned.
+
+Files named with any other extension will simply be copied as-is.
 
 
 

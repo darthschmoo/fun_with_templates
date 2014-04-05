@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>Links to all sectors</title>
+</head>
+
+<body>
+  <h1>Sectors</h1>
+  
+  <ul>
+  <% for i in @i %>
+    <% for j in @j %>
+      <% for k in @k %>
+        <li><a href="coordinates.<%= i %>-<%= j %>-<%= k %>.html">Sector (<%= i %>, <%= j %>, <%= k %>)</a></li>
+      <% end %>
+    <% end %>
+  <% end %>
+  </ul>
+</body>
+</html>

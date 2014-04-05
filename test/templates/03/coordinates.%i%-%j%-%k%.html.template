@@ -3,11 +3,11 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <title>This is page for sector (<%= @i %>,<%= @j %>, <%= @k %>)</title>
+  <title>This is page for sector (<%= @i %>, <%= @j %>, <%= @k %>)</title>
 </head>
 
 <body>
-  <h1>This is page for sector (<%= @i %>,<%= @j %>, <%= @k %>)</h1>
+  <h1>This is page for sector (<%= @i %>, <%= @j %>, <%= @k %>)</h1>
   
   <p>This sector is full of things.</p>
 </body>

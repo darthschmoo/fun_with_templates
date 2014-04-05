@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'bundler'
+
 begin
   Bundler.setup(:default, :development)
 rescue Bundler::BundlerError => e
@@ -19,4 +20,6 @@ end
 
 class FunWith::Templates::TestCase < Test::Unit::TestCase
   include FunWith::Templates
+  include FunWith::Testing::Assertions::Basics
+  include FunWith::Testing::Assertions::FunWithFiles  
 end

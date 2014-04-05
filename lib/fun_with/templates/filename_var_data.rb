@@ -16,10 +16,17 @@ module FunWith
       end
       
       def fill_in_path( template_path, substitution )
-        substitution = self.method_to_call ? substitution.send( self.method_to_call ) : substitution
+        substitution = call_method_on( substitution )
         substitution = self.num_format ? sprintf("%0#{self.num_format.length}i", substitution ) : substitution
         
         template_path.gsub( original_string, substitution.to_s )
+      end
+      
+      # If necessary.  If
+      def call_method_on( obj )
+        return obj if self.method_to_call.nil?
+        return obj[self.method_to_call] if obj.is_a?(Hash) && obj.has_key?(self.method_to_call)
+        return obj.send( self.method_to_call )
       end
       
       def self.fill_in_path( template_path, var_data, vars )
