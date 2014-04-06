@@ -15,7 +15,6 @@
 #           coll.var(:args, %w(lick paws?))
 #         end
 #         
-#         # debugger
 #         
 #         
 #         raise "WORK ON THIS!!!!"

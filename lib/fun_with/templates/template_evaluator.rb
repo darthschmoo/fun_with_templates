@@ -176,9 +176,13 @@ module FunWith
 
 
       # if no destination root is given, then a relative path from the src_root is given
+      # if this calculated dest is a directory, while the template @path is a file, then
+      # the template's basename is appended to the dest and filled in
       def destination( dest_root = nil )
         dest = dest_root ? dest_root.join( self.relative_path_from_root ) : self.relative_path_from_root
         
+        dest = dest.join( @path.basename ) if dest.directory? && @path.file?
+          
         dest = dest.gsub( TEMPLATE_FILE_REGEX, "" )
         FilenameVarData.fill_in_path( dest, parse_filename_vars, @vars )
       end
