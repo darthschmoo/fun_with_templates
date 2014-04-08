@@ -1,9 +1,6 @@
 = fun_with_templates
 
-A simple interface for filling in and cloning an entire directory.
-The entire directory shares a single set of variables... may be made
-more flexible later, with an ability to specify special behaviors
-based on file matching regexes?
+A simple interface for filling in and cloning an entire directory. The entire directory shares a single set of variables.
 
 For now you feed the function the template directory, the destination you want it cloned into.
 The vars is a hash, with symbols as the variable names.  If you declare { :monkey_name => "Bongo" },
@@ -11,18 +8,14 @@ you can use <%= @monkey_name %> in any of the templates, and '%monkey_name%' in 
 
 If a file is named with the '.template' or '.fwtemplate' file extension, it will undergo variable substitution.
 
-If the variable is an Array or Range or other enumeratableable object, and the filename has a variable embedded
-in it, the template will be evaluated once for each item enumerated, leading to multiple destination files.
-If the variable name isn't in the filename, the whole enumerable object gets passed in.  This is weird, but
-advantageous, as it means that in the templates where you don't mention the variable, you can access the whole
-range
+If the variable is an Array or Range or other enumeratableable object, and the filename has a variable embedded in it, the template will be evaluated once for each item enumerated, leading to multiple destination files. If the variable name isn't in the filename, the whole enumerable object gets passed in.  This is weird, but it gives one advantage: in the templates where you don't mention the variable in the filename, you can access the whole range.
 
 Filename variables:
 
 A few examples:  
    - %i%  :  filled in.  If the variable :i is enumerable, then the template gets evaluated multiple times
    - %character.name%  :  The object { :character => Character.new("barry") } gets .name() called on it.
-                          You can also make :character a hash with the :name key.
+                          You can also make :character a hash with the :name key ( {:character => {:name => "barry" } } ), and 'barry' will get substituted in.
    - %000k%  :  The number gets leading zeros.
    - %hello_world%  : You can use underscores.
 
@@ -42,17 +35,20 @@ Example:  chapter-%0000chap_count%.markdown.template_seq
                                ...
                                ==> chapter99.html
     
-The point of the leading zeros is to specify that the file's number will be padded with zeros.
+The point of the leading zeros is to specify that the file's number will be padded with that number of zeros.
 
 When declaring this in vars, you can use any of the following:
    vars = {:i => 0..19} (will generate 0 - 19)
-   vars = {:i => %w(ocelot mouse kitten puppy velociraptor)}  # @i will be filled in with the given strings.  leading 0s will be ignored.
+   vars = {:i => %w(ocelot mouse kitten puppy velociraptor)}  # @i will be filled in with the given strings.  leading 0s will be ignored, because the items in the array aren't numbers.
    
-The directory structure is cloned.
+The directory structure is cloned, though variable substitution can be done in directories as well as files.  If the variable embedded in the directory is an Array or Range object, it will create a separate directory for each item.  Beware combinatorial explosions.
 
-Files named with any other extension will simply be copied as-is.
+Files named with extensions other than .fwtemplate and .template will simply be copied as-is.
 
 
+== Feature ideas
+
+.. may be made more flexible later, with an ability to specify special behaviors based on file-matching regexes?  Also, maybe having template evaluators other than ERB would be a good idea.  I wonder if there's demand for it.
 
 == Contributing to fun_with_templates
  

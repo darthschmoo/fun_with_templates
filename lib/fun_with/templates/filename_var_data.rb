@@ -16,6 +16,7 @@ module FunWith
       end
       
       def fill_in_path( template_path, substitution )
+        return nil if substitution.nil?
         substitution = call_method_on( substitution )
         substitution = self.num_format ? sprintf("%0#{self.num_format.length}i", substitution ) : substitution
         

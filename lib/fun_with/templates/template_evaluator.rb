@@ -5,7 +5,7 @@ module FunWith
       attr_accessor :parent
       
       TEMPLATE_FILE_REGEX = /\.(fw)?template$/
-      VARIABLE_SUBSTITUTION_REGEX = /%(?<num_format>\d+)?(?<var_name>[a-zA-Z][A-Za-z0-9_]*)(\.(?<method_to_call>[a-zA-Z][A-Za-z0-9_]*))?%/
+      VARIABLE_SUBSTITUTION_REGEX = /%(0+)?([a-zA-Z][A-Za-z0-9_]*)(?:\.([a-zA-Z][A-Za-z0-9_]*))?%/
       VERBOSE = false
       
       # A simple interface for filling in and cloning an entire directory.
@@ -187,11 +187,16 @@ module FunWith
         FilenameVarData.fill_in_path( dest, parse_filename_vars, @vars )
       end
       
-      def each_node_with_destination( dest = :temp, &block )
-        dest = FunWith::Files::FilePath.tmpdir if dest == :temp
+      def each_node_with_destination( dest_root = :temp, &block )
+        dest_root = FunWith::Files::FilePath.tmpdir if dest_root == :temp
           
         self.each_node do |node|
-          yield [node, node.destination( dest )]
+          dst = node.destination( dest_root )
+           if dst       # if the filename needs variable replacing
+             yield [node, dst]
+           else   
+             warn( "Warning: file #{node.path} was not returned.") if FunWith::Templates.gem_verbose?
+           end
         end
       end
       
@@ -216,19 +221,30 @@ module FunWith
       # only called on leaf/files
       def result
         if @path.nil? || is_template?( @path )
-          # formerly @template_evaluator_current_content.  Don't know if removing the @ makes a diff.
-          template_evaluator_current_content = self.content  # In case someone using the templates uses @content
-          template_evaluator_set_local_vars( @vars ) do
-            ERB.new( template_evaluator_current_content ).result( binding )
+          begin
+            # formerly @template_evaluator_current_content.  Don't know if removing the @ makes a diff.
+            template_evaluator_current_content = self.content  # In case someone using the templates uses @content
+            template_evaluator_set_local_vars( @vars ) do
+              ERB.new( template_evaluator_current_content ).result( binding )
+            end
+          rescue Exception => e
+            warn( "Template #{ @path } could not be filled in properly (using vars: #{@vars.inspect}).  Returning error as result." )
+            result = ["FunWith::Templates::TemplateEvaluator ERROR"]
+            result << ""
+            result << "path: #{@path}"
+            result << ""
+            result << "vars: #{@vars.inspect}"
+            result << ""
+            result << "#{e.class}: #{e.message}"
+            result += e.backtrace.map{|line| "\t#{line}" }
+            
+            FunWith::Templates.say_if_verbose( result.join("\n") )
+            result.join("\n")
           end
         elsif @path.file?
           # just copy if it's not a template
           @path.read
         end
-      rescue Exception => e
-        puts "TemplateEvaluator: Exception while evaluating template #{@path}.  Rethrowing.".paint(:red)
-        # debugger
-        raise e
       end
       
       def result_to_file( dest )
@@ -238,7 +254,7 @@ module FunWith
       
       # if the var found in the filename isn't included in the set of variables given (@vars), no substitution will be performed
       def parse_filename_vars( path = @path )
-        var_matches = path.to_s.scan( VARIABLE_SUBSTITUTION_REGEX )
+        var_matches = path.scan( VARIABLE_SUBSTITUTION_REGEX )
         
         return [] if var_matches.fwf_blank?
         

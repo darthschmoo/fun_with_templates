@@ -1,4 +1,0 @@
-Chapter <%= @chapter_count %>
-========<%= "=" * @chapter_count.to_s.length %>
-
-

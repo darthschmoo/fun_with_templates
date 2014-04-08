@@ -84,7 +84,7 @@ class TestFunWithTemplates < FunWith::Templates::TestCase
     
     should "build templates/epf" do
       vars = epf_template_vars
-      dest = FunWith::Templates::TemplateEvaluator.write( @template_epf2, :temp, vars )
+      dest = FunWith::Templates::TemplateEvaluator.write( @template_epf, :temp, vars )
       
       afterword = dest.join("book", "afterword.markdown")
       assert_file afterword
@@ -114,7 +114,7 @@ class TestFunWithTemplates < FunWith::Templates::TestCase
     should "skip a file in templates/epf without character data" do
       vars = epf_template_vars
       vars[:character] = nil
-      dest = FunWith::Templates::TemplateEvaluator.write( @template_epf2, :temp, vars )
+      dest = FunWith::Templates::TemplateEvaluator.write( @template_epf, :temp, vars )
       
       assert_equal 0, dest.join("notes").glob("character.*.markdown").length
     end
