@@ -25,7 +25,7 @@ class TestFunWithTemplates < FunWith::Templates::TestCase
     
     teardown do
       if @dest.is_a?(FunWith::Files::FilePath) && @dest.directory?
-        puts "removing temp directory #{@dest}" if TemplateEvaluator::VERBOSE
+        puts "removing temp directory #{@dest}" if FunWith::Templates::TemplateEvaluator::VERBOSE
         FileUtils.rm_rf( @dest )
       end
     end
@@ -46,7 +46,7 @@ class TestFunWithTemplates < FunWith::Templates::TestCase
                 }
               } 
       
-      @dest = TemplateEvaluator.write( @template_00, :temp, vars )
+      @dest = FunWith::Templates::TemplateEvaluator.write( @template_00, :temp, vars )
       assert @dest.directory?
       assert @dest.join( "dir", "subdir" ).directory?
       a_rb = @dest.join( "a.rb" )
@@ -68,7 +68,7 @@ class TestFunWithTemplates < FunWith::Templates::TestCase
     should "validate results of template_01" do
       vars = { :string => %w(1 10 100 1000) }
 
-      @dest = TemplateEvaluator.write( @template_01, :temp, vars )
+      @dest = FunWith::Templates::TemplateEvaluator.write( @template_01, :temp, vars )
       
       assert_equal( 12, @dest.glob(:all).length )
       
@@ -83,44 +83,23 @@ class TestFunWithTemplates < FunWith::Templates::TestCase
     end
     
     should "build templates/epf" do
-      vars = {
-        :book => {
-          :title => "The Dawning of the Elluini",
-          :author => "Manchester Von Spittleman",
-          :license => "Creative Commons",
-          :publisher => "PUBLISHER NAME",
-          :original_publication => "2014-01-01"
-        },
-
-        :name => "Wilford Brimley",
-        :age => "Older than time itself",
-        :summary => "The Faceless Old Man Who Secretly Lives In Your Home",
-        :description => "Gentle, wizened, concerned about your bowel movements.",
-        :chapter_count => (1..20),
-        
-        :git => {
-          :repo => "/home/barry/git/the_dawning_of_the_elluini.epubforge.git",
-          :remote_host => "m.slashdot.org",
-          :remote_user => "barry",
-          :repo_id     => "36ce67680bbf6fc4d64741cbc3980fa5"
-        }
-      }
-      
-      dest = FunWith::Templates::TemplateEvaluator.write( @template_epf, :temp, vars )
+      vars = epf_template_vars
+      dest = FunWith::Templates::TemplateEvaluator.write( @template_epf2, :temp, vars )
       
       afterword = dest.join("book", "afterword.markdown")
-      assert afterword.file?
+      assert_file afterword
+      
       
       ch20 = dest.join( "book", "chapter-0020.markdown" )
-      assert ch20.file?
+      assert_file ch20
       assert_equal 1, ch20.grep( /^Chapter 20$/ ).length
       
       ch01 = dest.join( "book", "chapter-0001.markdown" )
-      assert ch01.file?
+      assert_file ch01
       assert_equal 1, ch01.grep( /^Chapter 1$/ ).length
 
       cover_page = dest.join( "book", "cover.xhtml" )
-      assert cover_page.file?
+      assert_file cover_page
       assert_equal 2, cover_page.grep( /Spittleman/ ).length
       
       config = dest.join( "settings", "config.rb" )
@@ -129,9 +108,17 @@ class TestFunWithTemplates < FunWith::Templates::TestCase
       assert_equal 1, config.grep( /36ce67/ ).length
       
       notes_css = dest.join( "notes", "stylesheets", "stylesheet.css" )
-      assert notes_css.file?
-      refute notes_css.empty?
+      assert_file_not_empty notes_css
     end
+    
+    should "skip a file in templates/epf without character data" do
+      vars = epf_template_vars
+      vars[:character] = nil
+      dest = FunWith::Templates::TemplateEvaluator.write( @template_epf2, :temp, vars )
+      
+      assert_equal 0, dest.join("notes").glob("character.*.markdown").length
+    end
+    
     
     should "build template_03, with multiple filename variables" do
       vars = { :i => 0..1, :j => 0..1, :k => 0..1 }
@@ -141,7 +128,7 @@ class TestFunWithTemplates < FunWith::Templates::TestCase
       entries = dest.glob( "coordinates.*.html" )
       
       for entry in entries
-        assert entry.file?
+        assert_file entry
       end
       assert_equal( 8, dest.glob( "coordinates.*.html" ).length )
       
@@ -150,11 +137,11 @@ class TestFunWithTemplates < FunWith::Templates::TestCase
       
       for combo in [ [0,0,0], [0,0,1], [0,1,0], [0,1,1], [1,0,0], [1,0,1], [1,1,0], [1,1,1] ]
         fil = dest.join("coordinates.#{combo[0]}-#{combo[1]}-#{combo[2]}.html")
-        assert fil.file?
+        assert_file fil
         assert_equal( 2, fil.grep( /\(#{combo[0]}, #{combo[1]}, #{combo[2]}\)/ ).length )
         
         pyfile = dest.join( "dir000#{combo[0]}", "dir000#{combo[1]}", "file000#{combo[2]}.py" )
-        assert pyfile.file?
+        assert_file pyfile
         assert_equal 1, pyfile.grep( /#{combo[0]}-#{combo[1]}-#{combo[2]}/ ).length
       end
     end
